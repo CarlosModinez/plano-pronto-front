@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { materialService } from '../services/api';
+import { documentService } from '../services/documentService';
 import type { Material } from '../types';
 import './LessonPlanDetails.css';
 
@@ -37,7 +38,17 @@ const LessonPlanDetails: React.FC = () => {
       <Link to="/dashboard" className="back-button">← Voltar para o Dashboard</Link>
       
       <header className="details-header">
-        <h1 className="details-title">{material.theme}</h1>
+        <div className="header-top">
+          <h1 className="details-title">{material.theme}</h1>
+          <div className="header-actions">
+            <button onClick={() => documentService.generateDocx(material)} className="download-button">
+              Baixar DOCX
+            </button>
+            <button onClick={() => documentService.generatePdf(material)} className="download-button">
+              Baixar PDF
+            </button>
+          </div>
+        </div>
         <div className="details-meta">
           <span className="tag">{material.discipline}</span>
           <span className="tag">{material.serie}</span>

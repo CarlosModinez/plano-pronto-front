@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { materialService, authService } from '../services/api';
+import { materialService } from '../services/api';
 import { documentService } from '../services/documentService';
 import type { Material, User } from '../types';
+import Header from '../components/Header';
+import MaterialCard from '../components/MaterialCard';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -17,7 +18,6 @@ const Dashboard: React.FC = () => {
     duration: 50,
     additional_context: '',
   });
-  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -30,15 +30,18 @@ const Dashboard: React.FC = () => {
   const loadMaterials = async () => {
     try {
       const data = await materialService.list();
-      setMaterials(data);
+      setMaterials(data.materials);
+      
+      // Update user credits from server response
+      setUser(prevUser => {
+        if (!prevUser) return null;
+        const updatedUser = { ...prevUser, credits: data.credits };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        return updatedUser;
+      });
     } catch (error) {
       console.error('Erro ao carregar materiais:', error);
     }
-  };
-
-  const handleLogout = () => {
-    authService.logout();
-    navigate('/login');
   };
 
   const handleDelete = async (id: string) => {
@@ -97,16 +100,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
-        <div className="header-left">
-          <img src="/logo.png" alt="Logo" className="header-logo" />
-          <div>
-            <h1>Gerador de Planos de Aula</h1>
-            {user && <p className="user-info">Bem-vindo, <strong>{user.name}</strong> | Créditos: <strong>{user.credits}</strong></p>}
-          </div>
-        </div>
-        <button onClick={handleLogout} className="logout-button">Sair</button>
-      </header>
+      <Header user={user} />
 
       <div className="content-grid">
         <div className="card">
@@ -196,22 +190,21 @@ const Dashboard: React.FC = () => {
               <p>Nenhum plano de aula encontrado.</p>
             ) : (
               materials.map((material) => (
-                <div key={material.id} className="material-item">
-                  <div className="material-header">
-                    <span className="material-title">{material.theme}</span>
-                    <span className="material-date">{new Date(material.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <div className="material-details">
-                    <p><strong>Disciplina:</strong> {material.discipline} | <strong>Série:</strong> {material.serie}</p>
-                    <p><strong>Duração:</strong> {material.duration} min</p>
-                  </div>
-                  <div className="material-actions">
-                    <Link to={`/materials/${material.id}`} className="action-button view-button">Ver Detalhes</Link>
-                    <button onClick={() => handleDownloadPdf(material)} className="action-button download-button">Baixar PDF</button>
-                    <button onClick={() => handleDownloadDocs(material)} className="action-button download-button">Baixar DOCX</button>
-                    <button onClick={() => handleDelete(material.id)} className="action-button delete-button">Excluir</button>
-                  </div>
-                </div>
+                <MaterialCard
+                  key={material.id}
+                  title={material.theme}
+                  subtitle={
+                    <>
+                      <p><strong>Disciplina:</strong> {material.discipline} | <strong>Série:</strong> {material.serie}</p>
+                      <p><strong>Duração:</strong> {material.duration} min</p>
+                    </>
+                  }
+                  date={material.created_at}
+                  viewLink={`/materials/${material.id}`}
+                  onDelete={() => handleDelete(material.id)}
+                  onDownloadDocx={() => handleDownloadDocs(material)}
+                  onDownloadPdf={() => handleDownloadPdf(material)}
+                />
               ))
             )}
           </div>
@@ -231,7 +224,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="modal-footer">
               <button className="cancel-button" onClick={() => setShowCreditModal(false)}>Cancelar</button>
-              <Link to="https://payfast.greenn.com.br/148992" className="buy-credits-button">Comprar Créditos</Link>
+              <a href="https://payfast.greenn.com.br/148992" className="buy-credits-button" target="_blank" rel="noopener noreferrer">Comprar Créditos</a>
             </div>
           </div>
         </div>

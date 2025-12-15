@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "start": "node server.js",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -13,9 +14,12 @@
     "axios": "^1.13.2",
     "docx-preview": "^0.3.7",
     "docxtemplater": "^3.67.5",
+    "express": "^5.2.1",
     "file-saver": "^2.0.5",
     "html2pdf.js": "^0.12.1",
+    "http-proxy-middleware": "^3.0.5",
     "pizzip": "^3.2.0",
+    "pspdfkit": "^2024.4.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.10.1"

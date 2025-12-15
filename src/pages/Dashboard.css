@@ -161,6 +161,47 @@
   box-shadow: 0 0 0 3px rgba(64, 156, 197, 0.1);
 }
 
+.themes-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.theme-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.theme-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.theme-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e1e4e8;
+  border-radius: var(--border-radius);
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.theme-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(64, 156, 197, 0.1);
+}
+
+.form-help {
+  display: block;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
 .submit-button {
   width: 100%;
   padding: 0.875rem;

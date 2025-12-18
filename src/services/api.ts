@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { LoginRequest, LoginResponse, RegisterRequest, LessonPlanRequest, Material, MaterialsResponse } from '../types';
 
-const API_URL = 'http://localhost:4000';
+const API_URL = 'https://plano-aula-generator-4ebcc32db1d8.herokuapp.com/';
 
 const api = axios.create({
   baseURL: API_URL,

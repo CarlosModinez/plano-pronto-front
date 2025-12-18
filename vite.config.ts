@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:4000', // Redireciona para o backend em prod
+        target: 'https://plano-aula-generator-4ebcc32db1d8.herokuapp.com', // Redireciona para o backend em prod
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

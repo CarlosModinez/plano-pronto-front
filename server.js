@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 8080;
 
 // Proxy API requests
 app.use('/api', createProxyMiddleware({
-  target: 'http://localhost:4000',
+  target: 'https://plano-aula-generator-4ebcc32db1d8.herokuapp.com',
   changeOrigin: true,
   pathRewrite: {
     '^/api': '', // remove /api prefix when forwarding to backend

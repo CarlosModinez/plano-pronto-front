@@ -1,0 +1,90 @@
+.content-details-layout {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  min-height: calc(100vh - 80px); /* Adjust based on header height */
+}
+
+.content-details-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.back-button:hover {
+  background-color: #e0e0e0;
+}
+
+.download-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.download-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  color: white;
+}
+
+.download-button.docx {
+  background-color: #efa835; /* Word blueish */
+}
+
+.download-button.docx:hover {
+  background-color: #ffe0b2;
+}
+
+.download-button.pdf {
+  background-color: #efa835; /* PDF reddish */
+}
+
+.download-button.pdf:hover {
+  background-color: #ffe0b2;
+}
+
+.content-details-header {
+  margin-bottom: 30px;
+}
+
+.content-details-title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.content-details-subtitle {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #666;
+  font-size: 14px;
+}
+
+.content-details-body {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}

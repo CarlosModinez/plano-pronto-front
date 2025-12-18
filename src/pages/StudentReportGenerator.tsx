@@ -3,11 +3,13 @@ import { studentReportService } from '../services/api';
 import type { User, StudentReportRequest, StudentReport } from '../types';
 import Header from '../components/Header';
 import MaterialCard from '../components/MaterialCard';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import './Dashboard.css';
 
 const StudentReportGenerator: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showCreditModal, setShowCreditModal] = useState(false);
   const [reports, setReports] = useState<StudentReport[]>([]);
   const [formData, setFormData] = useState<StudentReportRequest>({
     serie: '',
@@ -59,9 +61,13 @@ const StudentReportGenerator: React.FC = () => {
         observacoes_professor: '',
       });
       alert('Relatório gerado com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao gerar relatório:', error);
-      alert('Erro ao gerar relatório.');
+      if (error.response?.data?.error === "Insufficient credits. Please purchase a package.") {
+        setShowCreditModal(true);
+      } else {
+        alert('Erro ao gerar relatório.');
+      }
     } finally {
       setLoading(false);
     }
@@ -186,6 +192,11 @@ const StudentReportGenerator: React.FC = () => {
           )}
         </div>
       </div>
+
+      <InsufficientCreditsModal 
+        isOpen={showCreditModal} 
+        onClose={() => setShowCreditModal(false)} 
+      />
     </div>
   );
 };

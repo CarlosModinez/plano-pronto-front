@@ -2,7 +2,7 @@ import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
 import { saveAs } from 'file-saver';
 // @ts-ignore
-import PSPDFKit from 'pspdfkit';
+import html2pdf from 'html2pdf.js';
 import type { Material, AnnualPlan, DidacticSequence } from '../types';
 
 export const documentService = {
@@ -32,39 +32,184 @@ export const documentService = {
     });
   },
 
-  _generatePdfWithPspdfkit: async (docxBlob: Blob, filename: string) => {
-    const objectUrl = URL.createObjectURL(docxBlob);
-    const container = document.createElement('div');
-    // Position off-screen but keep it "visible" to the DOM so PSPDFKit can render
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    container.style.top = '0';
-    container.style.width = '1000px';
-    container.style.height = '1000px';
-    document.body.appendChild(container);
+  _generateHtmlPdf: (element: HTMLElement | string, filename: string) => {
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
 
-    try {
-      // @ts-ignore
-      const instance = await PSPDFKit.load({
-        container,
-        document: objectUrl,
-        baseUrl: `${window.location.protocol}//${window.location.host}/pspdfkit-lib/`,
-      });
+    // @ts-ignore
+    return html2pdf().set(opt).from(element).save();
+  },
+
+  _generateMaterialHtml: (material: Material) => {
+    const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('pt-BR');
+    
+    let html = `
+      <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+        <div style="border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+          <h1 style="color: #2c3e50; margin-bottom: 10px;">${material.theme}</h1>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.9em; color: #666;">
+            <span style="background: #f0f2f5; padding: 4px 8px; border-radius: 4px;">${material.discipline}</span>
+            <span style="background: #f0f2f5; padding: 4px 8px; border-radius: 4px;">${material.serie}</span>
+            <span style="background: #f0f2f5; padding: 4px 8px; border-radius: 4px;">${material.duration} min</span>
+            <span>Criado em: ${formatDate(material.created_at)}</span>
+          </div>
+        </div>
+    `;
+
+    const addSection = (title: string, content: string | string[] | undefined) => {
+      if (!content || (Array.isArray(content) && content.length === 0)) return '';
       
-      const pdfBuffer = await instance.exportPDF();
-      const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
-      saveAs(pdfBlob, filename);
-      
-      URL.revokeObjectURL(objectUrl);
-      PSPDFKit.unload(container);
-    } catch (error) {
-      console.error('PSPDFKit error:', error);
-      alert('Erro ao gerar PDF. Verifique se os arquivos da biblioteca PSPDFKit estão na pasta public/pspdfkit-lib.');
-    } finally {
-      if (document.body.contains(container)) {
-        document.body.removeChild(container);
+      let contentHtml = '';
+      if (Array.isArray(content)) {
+        contentHtml = `<ul>${content.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}</ul>`;
+      } else {
+        contentHtml = `<p style="white-space: pre-wrap;">${content}</p>`;
       }
+
+      return `
+        <div style="margin-bottom: 25px;">
+          <h3 style="color: #2c3e50; border-left: 4px solid #3498db; padding-left: 10px; margin-bottom: 15px;">${title}</h3>
+          ${contentHtml}
+        </div>
+      `;
+    };
+
+    html += addSection('Fundamentação', material.foundation);
+    html += addSection('Objetivo Geral', material.general_objective);
+    html += addSection('Objetivos Específicos', material.specific_objectives);
+    html += addSection('Conteúdo', material.content);
+    html += addSection('Metodologia', material.methodology);
+    html += addSection('Recursos Didáticos', material.resources);
+    html += addSection('Avaliação', material.evaluation);
+    html += addSection('Atividades de Casa', material.homework);
+    html += addSection('Adaptações', material.adaptations);
+    html += addSection('Habilidades', material.skills);
+
+    html += '</div>';
+    return html;
+  },
+
+  _generateAnnualPlanHtml: (plan: AnnualPlan) => {
+    const formatDate = (dateStr: string | undefined) => dateStr ? new Date(dateStr).toLocaleDateString('pt-BR') : '';
+    
+    let html = `
+      <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+        <div style="border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+          <h1 style="color: #2c3e50; margin-bottom: 10px;">Plano Anual: ${plan.discipline}</h1>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.9em; color: #666;">
+            <span style="background: #f0f2f5; padding: 4px 8px; border-radius: 4px;">${plan.serie}</span>
+            <span>Criado em: ${formatDate(plan.created_at)}</span>
+          </div>
+        </div>
+    `;
+
+    const addSection = (title: string, content: string | string[] | undefined) => {
+      if (!content || (Array.isArray(content) && content.length === 0)) return '';
+      let contentHtml = Array.isArray(content) 
+        ? `<ul>${content.map(item => `<li style="margin-bottom: 5px;">${item}</li>`).join('')}</ul>`
+        : `<p style="white-space: pre-wrap;">${content}</p>`;
+      return `<div style="margin-bottom: 25px;"><h3 style="color: #2c3e50; border-left: 4px solid #3498db; padding-left: 10px; margin-bottom: 15px;">${title}</h3>${contentHtml}</div>`;
+    };
+
+    html += addSection('Área de Conhecimento', plan.area_conhecimento);
+    html += addSection('Conceito Geral', plan.conceito_geral);
+    html += addSection('Objetivo Geral', plan.objetivo_geral);
+    html += addSection('Objetivos Específicos', plan.objetivo_especifico);
+    html += addSection('Competências', plan.competencias);
+    html += addSection('Conhecimentos e Habilidades', plan.conhecimentos_habilidades);
+
+    const renderBimestre = (label: string, bimestre: any) => {
+      if (!bimestre || !bimestre.tema) return '';
+      
+      let bHtml = `<div style="margin-top: 30px; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
+        <h3 style="color: #2c3e50; margin-top: 0;">${label}</h3>
+        <p><strong>Tema:</strong> ${bimestre.tema}</p>`;
+      
+      const addSubSection = (subTitle: string, items: string[]) => {
+        if (!items || items.length === 0) return '';
+        return `<h4>${subTitle}</h4><ul>${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
+      };
+
+      bHtml += addSubSection('Etapas', bimestre.etapas);
+      bHtml += addSubSection('Metodologia', bimestre.metodologia);
+      bHtml += addSubSection('Recursos', bimestre.recursos);
+      bHtml += addSubSection('Avaliações', bimestre.avaliacoes);
+      bHtml += addSubSection('Referências', bimestre.referencias);
+      
+      bHtml += '</div>';
+      return bHtml;
+    };
+
+    html += renderBimestre('Primeiro Bimestre', plan.primeiro_bimestre);
+    html += renderBimestre('Segundo Bimestre', plan.segundo_bimestre);
+    html += renderBimestre('Terceiro Bimestre', plan.terceiro_bimestre);
+    html += renderBimestre('Quarto Bimestre', plan.quarto_bimestre);
+
+    html += '</div>';
+    return html;
+  },
+
+  _generateDidacticSequenceHtml: (sequence: DidacticSequence) => {
+    const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('pt-BR');
+    
+    let html = `
+      <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+        <div style="border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+          <h1 style="color: #2c3e50; margin-bottom: 10px;">${sequence.titulo || sequence.tema || 'Sequência Didática'}</h1>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.9em; color: #666;">
+            <span style="background: #f0f2f5; padding: 4px 8px; border-radius: 4px;">${sequence.disciplina}</span>
+            <span style="background: #f0f2f5; padding: 4px 8px; border-radius: 4px;">${sequence.serie}</span>
+            ${sequence.created_at ? `<span>Criado em: ${formatDate(sequence.created_at)}</span>` : ''}
+          </div>
+        </div>
+    `;
+
+    if (sequence.objetivo_principal) {
+      html += `<div style="margin-bottom: 25px;"><h3 style="color: #2c3e50; border-left: 4px solid #3498db; padding-left: 10px; margin-bottom: 15px;">Objetivo Principal</h3><p>${sequence.objetivo_principal}</p></div>`;
     }
+
+    if (sequence.habilidades_bncc && sequence.habilidades_bncc.length > 0) {
+      html += `<div style="margin-bottom: 25px;"><h3 style="color: #2c3e50; border-left: 4px solid #3498db; padding-left: 10px; margin-bottom: 15px;">Habilidades da BNCC</h3><ul>${sequence.habilidades_bncc.map(h => `<li>${h}</li>`).join('')}</ul></div>`;
+    }
+
+    if (sequence.dias && sequence.dias.length > 0) {
+      html += `<div style="margin-bottom: 25px;"><h3 style="color: #2c3e50; border-left: 4px solid #3498db; padding-left: 10px; margin-bottom: 15px;">Sequência de Aulas</h3>`;
+      
+      sequence.dias.forEach(dia => {
+        html += `<div style="margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+          <h4 style="margin-top: 0; color: #2c3e50;">Dia ${dia.numero}: ${dia.titulo}</h4>`;
+        
+        if (dia.atividades) {
+          dia.atividades.forEach(atividade => {
+            html += `<div style="margin-top: 15px; padding-left: 15px; border-left: 2px solid #ddd;">
+              <h5 style="margin: 0 0 10px 0;">Atividade ${atividade.numero}: ${atividade.nome}</h5>
+              <p style="margin: 5px 0;"><strong>Metodologia:</strong> ${atividade.metodologia}</p>
+              <p style="margin: 5px 0;"><strong>Recursos:</strong> ${atividade.recursos}</p>
+              <p style="margin: 5px 0;"><strong>Descrição:</strong> ${atividade.descricao}</p>
+            </div>`;
+          });
+        }
+        html += `</div>`;
+      });
+      html += `</div>`;
+    }
+
+    if (sequence.avaliacao) {
+      html += `<div style="margin-bottom: 25px;"><h3 style="color: #2c3e50; border-left: 4px solid #3498db; padding-left: 10px; margin-bottom: 15px;">Avaliação</h3><p>${sequence.avaliacao}</p></div>`;
+    }
+
+    if (sequence.consideracoes_finais) {
+      html += `<div style="margin-bottom: 25px;"><h3 style="color: #2c3e50; border-left: 4px solid #3498db; padding-left: 10px; margin-bottom: 15px;">Considerações Finais</h3><p>${sequence.consideracoes_finais}</p></div>`;
+    }
+
+    html += '</div>';
+    return html;
   },
 
   generateDocx: async (material: Material) => {
@@ -102,9 +247,8 @@ export const documentService = {
 
   generatePdf: async (material: Material) => {
     try {
-      const data = prepareData(material);
-      const blob = await documentService._createDocxBlob(data, 'PLANO_AULA_DIARIO.docx');
-      await documentService._generatePdfWithPspdfkit(blob, `Plano_de_Aula_${material.theme.replace(/\s+/g, '_')}.pdf`);
+      const html = documentService._generateMaterialHtml(material);
+      await documentService._generateHtmlPdf(html, `Plano_de_Aula_${material.theme.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       alert('Erro ao gerar o PDF.');
@@ -113,9 +257,8 @@ export const documentService = {
 
   generateAnnualPlanPdf: async (plan: AnnualPlan) => {
     try {
-      const data = prepareAnnualPlanData(plan);
-      const blob = await documentService._createDocxBlob(data, 'PLANO_AULA_ANUAL.docx');
-      await documentService._generatePdfWithPspdfkit(blob, `Plano_Anual_${plan.discipline.replace(/\s+/g, '_')}.pdf`);
+      const html = documentService._generateAnnualPlanHtml(plan);
+      await documentService._generateHtmlPdf(html, `Plano_Anual_${plan.discipline.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       alert('Erro ao gerar o PDF.');
@@ -124,9 +267,8 @@ export const documentService = {
 
   generateDidacticSequencePdf: async (sequence: DidacticSequence) => {
     try {
-      const data = prepareDidacticSequenceData(sequence);
-      const blob = await documentService._createDocxBlob(data, 'TEMPLATE_SEQUENCIA_AULA.docx');
-      await documentService._generatePdfWithPspdfkit(blob, `Sequencia_Didatica_${sequence.tema?.replace(/\s+/g, '_') || 'Nova'}.pdf`);
+      const html = documentService._generateDidacticSequenceHtml(sequence);
+      await documentService._generateHtmlPdf(html, `Sequencia_Didatica_${sequence.tema?.replace(/\s+/g, '_') || 'Nova'}.pdf`);
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       alert('Erro ao gerar o PDF.');

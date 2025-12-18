@@ -4,6 +4,7 @@ import { annualPlanService } from '../services/api';
 import { documentService } from '../services/documentService';
 import type { User, AnnualPlan } from '../types';
 import Header from '../components/Header';
+import ContentDetailsLayout from '../components/ContentDetailsLayout';
 import './LessonPlanDetails.css';
 
 const AnnualPlanDetails: React.FC = () => {
@@ -113,14 +114,21 @@ const AnnualPlanDetails: React.FC = () => {
     <div className="dashboard-container">
       <Header user={user} />
       
-      <div className="details-container">
-        <div className="details-header">
-          <h2>{plan.discipline} - {plan.serie}</h2>
-          {plan.created_at && (
-            <div className="details-date">Criado em: {new Date(plan.created_at).toLocaleDateString()}</div>
-          )}
-        </div>
-
+      <ContentDetailsLayout
+        title={`${plan.discipline} - ${plan.serie}`}
+        subtitle={
+          <>
+            <span className="tag">{plan.discipline}</span>
+            <span className="tag">{plan.serie}</span>
+            {plan.created_at && (
+              <span className="details-date">Criado em: {new Date(plan.created_at).toLocaleDateString()}</span>
+            )}
+          </>
+        }
+        onBack={() => navigate('/annual-plan')}
+        onDownloadDocx={() => documentService.generateAnnualPlanDocx(plan)}
+        onDownloadPdf={() => documentService.generateAnnualPlanPdf(plan)}
+      >
         {plan.area_conhecimento && (
           <div className="details-section">
             <h3>Área de Conhecimento</h3>
@@ -179,17 +187,7 @@ const AnnualPlanDetails: React.FC = () => {
         {renderBimestre('2º Bimestre', plan.segundo_bimestre)}
         {renderBimestre('3º Bimestre', plan.terceiro_bimestre)}
         {renderBimestre('4º Bimestre', plan.quarto_bimestre)}
-
-        <div className="details-actions">
-          <button onClick={() => navigate('/annual-plan')} className="back-button">Voltar</button>
-          <button onClick={() => documentService.generateAnnualPlanDocx(plan)} className="download-button">
-            Baixar DOCX
-          </button>
-          <button onClick={() => documentService.generateAnnualPlanPdf(plan)} className="download-button">
-            Baixar PDF
-          </button>
-        </div>
-      </div>
+      </ContentDetailsLayout>
     </div>
   );
 };

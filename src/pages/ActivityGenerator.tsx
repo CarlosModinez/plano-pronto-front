@@ -3,11 +3,13 @@ import { activityGeneratorService } from '../services/api';
 import type { User, ActivityGeneratorRequest, ActivityRecord } from '../types';
 import Header from '../components/Header';
 import MaterialCard from '../components/MaterialCard';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import './Dashboard.css';
 
 const ActivityGenerator: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showCreditModal, setShowCreditModal] = useState(false);
   const [activityRecords, setActivityRecords] = useState<ActivityRecord[]>([]);
   const [formData, setFormData] = useState<ActivityGeneratorRequest>({
     grade_level: '',
@@ -51,9 +53,13 @@ const ActivityGenerator: React.FC = () => {
         environment: 'Sala de aula',
       });
       alert('Atividades geradas com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao gerar atividades:', error);
-      alert('Erro ao gerar atividades.');
+      if (error.response?.data?.error.toLowerCase().includes("insufficient credits")) {
+        setShowCreditModal(true);
+      } else {
+        alert('Erro ao gerar atividades.');
+      }
     } finally {
       setLoading(false);
     }
@@ -95,6 +101,9 @@ const ActivityGenerator: React.FC = () => {
                 value={formData.grade_level}
                 onChange={handleChange}
                 required
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
+
               />
             </div>
             <div className="form-group">
@@ -105,6 +114,8 @@ const ActivityGenerator: React.FC = () => {
                 value={formData.number_of_students}
                 onChange={handleChange}
                 required
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               />
             </div>
             <div className="form-group">
@@ -114,6 +125,8 @@ const ActivityGenerator: React.FC = () => {
                 value={formData.environment}
                 onChange={handleChange}
                 required
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               >
                 <option value="Sala de aula">Sala de aula</option>
                 <option value="Pátio">Pátio</option>
@@ -153,6 +166,11 @@ const ActivityGenerator: React.FC = () => {
           )}
         </div>
       </div>
+
+      <InsufficientCreditsModal 
+        isOpen={showCreditModal} 
+        onClose={() => setShowCreditModal(false)} 
+      />
     </div>
   );
 };

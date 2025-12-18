@@ -4,6 +4,7 @@ import { documentService } from '../services/documentService';
 import type { Material, User } from '../types';
 import Header from '../components/Header';
 import MaterialCard from '../components/MaterialCard';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -80,7 +81,7 @@ const Dashboard: React.FC = () => {
       alert('Plano de aula gerado com sucesso!');
     } catch (error: any) {
       console.error('Erro ao gerar plano:', error);
-      if (error.response?.data?.error === "Insufficient credits. Please purchase a package.") {
+      if (error.response?.data?.error.toLowerCase().includes("insufficient credits")) {
         setShowCreditModal(true);
       } else {
         alert('Erro ao gerar plano de aula.');
@@ -115,6 +116,8 @@ const Dashboard: React.FC = () => {
                 onChange={handleChange}
                 placeholder="Ex: Matemática"
                 required
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               />
             </div>
             <div className="form-group">
@@ -124,6 +127,8 @@ const Dashboard: React.FC = () => {
                 value={formData.serie}
                 onChange={handleChange}
                 required
+                onInvalid={(e) => (e.target as HTMLSelectElement).setCustomValidity('Por favor, selecione uma opção.')}
+                onInput={(e) => (e.target as HTMLSelectElement).setCustomValidity('')}
               >
                 <option value="">Selecione a série/ano</option>
                 <option value="Berçário I">Berçário I</option>
@@ -153,6 +158,8 @@ const Dashboard: React.FC = () => {
                 name="theme"
                 value={formData.theme}
                 onChange={handleChange}
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                 placeholder="Ex: Frações"
                 required
               />
@@ -163,6 +170,8 @@ const Dashboard: React.FC = () => {
                 type="number"
                 name="duration"
                 value={formData.duration}
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                 onChange={handleChange}
                 required
               />
@@ -177,7 +186,7 @@ const Dashboard: React.FC = () => {
                 rows={4}
               />
             </div>
-            <button type="submit" className="submit-button" disabled={loading || !formData.discipline || !formData.serie || !formData.theme || !formData.duration}>
+            <button type="submit" className="submit-button">
               {loading ? 'Gerando...' : 'Gerar Plano'}
             </button>
           </form>
@@ -211,24 +220,10 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {showCreditModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h2>Saldo Insuficiente</h2>
-              <button className="close-button" onClick={() => setShowCreditModal(false)}>&times;</button>
-            </div>
-            <div className="modal-body">
-              <p>Você não possui créditos suficientes para gerar um novo plano de aula.</p>
-              <p>Adquira um novo pacote de créditos para continuar aproveitando nossa ferramenta.</p>
-            </div>
-            <div className="modal-footer">
-              <button className="cancel-button" onClick={() => setShowCreditModal(false)}>Cancelar</button>
-              <a href="https://payfast.greenn.com.br/148992" className="buy-credits-button" target="_blank" rel="noopener noreferrer">Comprar Créditos</a>
-            </div>
-          </div>
-        </div>
-      )}
+      <InsufficientCreditsModal 
+        isOpen={showCreditModal} 
+        onClose={() => setShowCreditModal(false)} 
+      />
     </div>
   );
 };

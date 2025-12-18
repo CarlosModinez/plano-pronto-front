@@ -304,7 +304,7 @@
 }
 
 .download-button {
-  background-color: #fff3e0;
+  background-color: #efa835;
   color: var(--secondary-color);
 }
 
@@ -430,7 +430,6 @@
 
 .modal-body p:last-child {
   margin-bottom: 0;
-  color: var(--text-light);
   font-size: 1rem;
 }
 

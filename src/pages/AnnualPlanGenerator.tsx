@@ -4,11 +4,13 @@ import { documentService } from '../services/documentService';
 import type { User, AnnualPlanRequest, AnnualPlan } from '../types';
 import Header from '../components/Header';
 import MaterialCard from '../components/MaterialCard';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import './Dashboard.css';
 
 const AnnualPlanGenerator: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showCreditModal, setShowCreditModal] = useState(false);
   const [plans, setPlans] = useState<AnnualPlan[]>([]);
   const [formData, setFormData] = useState<AnnualPlanRequest>({
     discipline: '',
@@ -61,9 +63,13 @@ const AnnualPlanGenerator: React.FC = () => {
         additional_context: '',
       });
       alert('Plano Anual gerado com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao gerar plano anual:', error);
-      alert('Erro ao gerar plano anual.');
+      if (error.response?.data?.error.toLowerCase().includes("insufficient credits")) {
+        setShowCreditModal(true);
+      } else {
+        alert('Erro ao gerar plano anual.');
+      }
     } finally {
       setLoading(false);
     }
@@ -117,6 +123,8 @@ const AnnualPlanGenerator: React.FC = () => {
                 onChange={handleChange}
                 placeholder="Ex: Ciências"
                 required
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               />
             </div>
             <div className="form-group">
@@ -126,6 +134,8 @@ const AnnualPlanGenerator: React.FC = () => {
                 value={formData.serie}
                 onChange={handleChange}
                 required
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               >
                 <option value="">Selecione a série/ano</option>
                 <option value="1º Ano Ensino Fundamental">1º Ano Ensino Fundamental</option>
@@ -206,6 +216,11 @@ const AnnualPlanGenerator: React.FC = () => {
           )}
         </div>
       </div>
+
+      <InsufficientCreditsModal 
+        isOpen={showCreditModal} 
+        onClose={() => setShowCreditModal(false)} 
+      />
     </div>
   );
 };

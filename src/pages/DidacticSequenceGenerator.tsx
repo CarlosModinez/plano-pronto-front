@@ -4,11 +4,13 @@ import { documentService } from '../services/documentService';
 import type { User, DidacticSequenceRequest, DidacticSequence } from '../types';
 import Header from '../components/Header';
 import MaterialCard from '../components/MaterialCard';
+import InsufficientCreditsModal from '../components/InsufficientCreditsModal';
 import './Dashboard.css';
 
 const DidacticSequenceGenerator: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showCreditModal, setShowCreditModal] = useState(false);
   const [sequences, setSequences] = useState<DidacticSequence[]>([]);
   const [formData, setFormData] = useState<DidacticSequenceRequest>({
     serie: '',
@@ -54,9 +56,13 @@ const DidacticSequenceGenerator: React.FC = () => {
         objetivo_principal: '',
       });
       alert('Sequência Didática gerada com sucesso!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao gerar sequência:', error);
-      alert('Erro ao gerar sequência didática.');
+      if (error.response?.data?.error.toLowerCase().includes("insufficient credits")) {
+        setShowCreditModal(true);
+      } else {
+        alert('Erro ao gerar sequência didática.');
+      }
     } finally {
       setLoading(false);
     }
@@ -97,7 +103,10 @@ const DidacticSequenceGenerator: React.FC = () => {
                 name="disciplina"
                 value={formData.disciplina}
                 onChange={handleChange}
+                placeholder="Ex: Ciências"
                 required
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               />
             </div>
             <div className="form-group">
@@ -107,6 +116,8 @@ const DidacticSequenceGenerator: React.FC = () => {
                 value={formData.serie}
                 onChange={handleChange}
                 required
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               >
                 <option value="">Selecione a série/ano</option>
                 <option value="Berçário I">Berçário I</option>
@@ -136,7 +147,10 @@ const DidacticSequenceGenerator: React.FC = () => {
                 name="tema"
                 value={formData.tema}
                 onChange={handleChange}
+                placeholder="Ex: Ciclo da Água"
                 required
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               />
             </div>
             <div className="form-group">
@@ -145,7 +159,10 @@ const DidacticSequenceGenerator: React.FC = () => {
                 name="objetivo_principal"
                 value={formData.objetivo_principal}
                 onChange={handleChange}
+                placeholder="Ex: Compreender as etapas do ciclo da água e sua importância para o meio ambiente."
                 required
+                onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Por favor, preencha este campo.')}
+                onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
               />
             </div>
             <button type="submit" disabled={loading} className="submit-button">
@@ -181,6 +198,11 @@ const DidacticSequenceGenerator: React.FC = () => {
           )}
         </div>
       </div>
+
+      <InsufficientCreditsModal 
+        isOpen={showCreditModal} 
+        onClose={() => setShowCreditModal(false)} 
+      />
     </div>
   );
 };

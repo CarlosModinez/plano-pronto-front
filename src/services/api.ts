@@ -34,6 +34,9 @@ export const authService = {
   changePassword: async (newPassword: string): Promise<void> => {
     await api.post('/auth/change-password', { new_password: newPassword });
   },
+  forgotPassword: async (email: string): Promise<void> => {
+    await api.post('/auth/forgot-password', { email });
+  },
   resetPassword: async (token: string, newPassword: string): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>('/auth/reset-password', { token, new_password: newPassword });
     if (response.data.token) {

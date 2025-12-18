@@ -49,7 +49,7 @@ const Login: React.FC = () => {
           />
         </div>
         <button type="submit" className="auth-button">Entrar</button>
-        <Link to="/register" className="auth-link">Não tem uma conta? Cadastre-se</Link>
+        <Link to="/forgot_password" className='auth-link'>Esqueci senha</Link>
       </form>
     </div>
   );

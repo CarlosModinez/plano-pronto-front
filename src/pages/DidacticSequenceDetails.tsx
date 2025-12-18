@@ -4,6 +4,7 @@ import { didacticSequenceService } from '../services/api';
 import { documentService } from '../services/documentService';
 import type { User, DidacticSequence } from '../types';
 import Header from '../components/Header';
+import ContentDetailsLayout from '../components/ContentDetailsLayout';
 import './LessonPlanDetails.css';
 
 const DidacticSequenceDetails: React.FC = () => {
@@ -52,19 +53,21 @@ const DidacticSequenceDetails: React.FC = () => {
     <div className="dashboard-container">
       <Header user={user} />
       
-      <div className="details-container">
-        <div className="details-header">
-          <h2>{sequence.titulo || sequence.tema}</h2>
-          {sequence.created_at && (
-            <div className="details-date">Criado em: {new Date(sequence.created_at).toLocaleDateString()}</div>
-          )}
-        </div>
-
-        <div className="details-section">
-          <p><strong>Disciplina:</strong> {sequence.disciplina}</p>
-          <p><strong>Série:</strong> {sequence.serie}</p>
-        </div>
-
+      <ContentDetailsLayout
+        title={sequence.titulo || sequence.tema || 'Sequência Didática'}
+        subtitle={
+          <>
+            <span className="tag">{sequence.disciplina}</span>
+            <span className="tag">{sequence.serie}</span>
+            {sequence.created_at && (
+              <span className="details-date">Criado em: {new Date(sequence.created_at).toLocaleDateString()}</span>
+            )}
+          </>
+        }
+        onBack={() => navigate('/didactic-sequence')}
+        onDownloadDocx={() => documentService.generateDidacticSequenceDocx(sequence)}
+        onDownloadPdf={() => documentService.generateDidacticSequencePdf(sequence)}
+      >
         {sequence.objetivo_principal && (
           <div className="details-section">
             <h3>Objetivo Principal</h3>
@@ -115,17 +118,7 @@ const DidacticSequenceDetails: React.FC = () => {
             <p>{sequence.consideracoes_finais}</p>
           </div>
         )}
-
-        <div className="details-actions">
-          <button onClick={() => navigate('/didactic-sequence')} className="back-button">Voltar</button>
-          <button onClick={() => documentService.generateDidacticSequenceDocx(sequence)} className="download-button">
-            Baixar DOCX
-          </button>
-          <button onClick={() => documentService.generateDidacticSequencePdf(sequence)} className="download-button">
-            Baixar PDF
-          </button>
-        </div>
-      </div>
+      </ContentDetailsLayout>
     </div>
   );
 };

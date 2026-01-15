@@ -28,35 +28,65 @@ const InsufficientCreditsModal: React.FC<InsufficientCreditsModalProps> = ({ isO
 
         <div className="modal-header-content">
           <h2>Créditos Insuficientes</h2>
-          <p className="modal-subtitle">Continue criando seus materiais pedagógicos</p>
+          <p className="modal-subtitle">Escolha o melhor plano para você</p>
         </div>
 
         <div className="modal-body">
           <p>Você utilizou todos os seus créditos disponíveis.</p>
-          <div className="offer-box">
-            <span className="offer-label">Pacote Promocional</span>
-            <div className="offer-content">
-              <span className="credits-amount">20 Créditos</span>
-              <p className="offer-description">Continue gerando planos de aula, atividades e muito mais!</p>
+          
+          <div className="plans-container">
+            {/* Plano Mensal */}
+            <div className="plan-card">
+              <div className="plan-header">
+                <span className="plan-name">Mensal</span>
+              </div>
+              <div className="plan-price-box">
+                <span className="currency">R$</span>
+                <span className="amount">18,87</span>
+                <span className="period">/mês</span>
+              </div>
+              <ul className="plan-features">
+                <li>Acesso completo</li>
+                <li>Geração ilimitada</li>
+                <li>Suporte prioriotário</li>
+              </ul>
+              <a 
+                href="https://payfast.greenn.com.br/153213/offer/9FG3IJ" 
+                className="plan-button outline" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                Assinar Mensal
+              </a>
+            </div>
+
+            {/* Plano Anual */}
+            <div className="plan-card featured">
+              <div className="best-value-badge">MELHOR VALOR</div>
+              <div className="plan-header">
+                <span className="plan-name">Anual</span>
+              </div>
+              <div className="plan-price-box">
+                <span className="currency">R$</span>
+                <span className="amount">127,90</span>
+                <span className="period">/ano</span>
+              </div>
+              <p className="savings">Economize R$ 98,54</p>
+              <ul className="plan-features">
+                <li>Todo o plano mensal</li>
+                <li>2 meses grátis</li>
+                <li>Acesso à novidades</li>
+              </ul>
+              <a 
+                href="https://payfast.greenn.com.br/153213/offer/RyRUxz" 
+                className="plan-button" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                Assinar Anual
+              </a>
             </div>
           </div>
-        </div>
-
-        <div className="modal-footer">
-          <button className="cancel-button" onClick={onClose}>Agora Não</button>
-          <a 
-            href="https://payfast.greenn.com.br/149926" 
-            className="buy-credits-button" 
-            target="_blank" 
-            rel="noopener noreferrer"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Adquirir Créditos
-          </a>
         </div>
       </div>
     </div>

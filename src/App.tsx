@@ -13,6 +13,7 @@ import ActivityGenerator from './pages/ActivityGenerator';
 import ActivityDetails from './pages/ActivityDetails';
 import StudentReportGenerator from './pages/StudentReportGenerator';
 import StudentReportDetails from './pages/StudentReportDetails';
+import UnderConstruction from './pages/UnderConstruction';
 import ChangePassword from './pages/ChangePassword';
 import ResetPassword from './pages/ResetPassword';
 import PrivateRoute from './components/PrivateRoute';
@@ -34,9 +35,10 @@ const App: React.FC = () => {
           <Route path="/annual-plan/:id" element={<AnnualPlanDetails />} />
           <Route path="/didactic-sequence" element={<DidacticSequenceGenerator />} />
           <Route path="/didactic-sequence/:id" element={<DidacticSequenceDetails />} />
-          <Route path="/activities" element={<ActivityGenerator />} />
+          <Route path="/activities" element={<UnderConstruction title="Atividades" />} />
           <Route path="/activities/:id" element={<ActivityDetails />} />
-          <Route path="/student-report" element={<StudentReportGenerator />} />
+          <Route path="/assessments" element={<UnderConstruction title="Avaliações" />} />
+          <Route path="/student-report" element={<UnderConstruction title="Relatório de Desenvolvimento" />} />
           <Route path="/student-report/:id" element={<StudentReportDetails />} />
         </Route>
         <Route path="/" element={<Navigate to="/dashboard" />} />

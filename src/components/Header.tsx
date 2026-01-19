@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
 import type { User } from '../types';
 import './Header.css';
@@ -37,11 +37,14 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
       </div>
 
       <nav className={`nav-menu ${isMenuOpen ? 'open' : ''}`}>
-        <Link to="/dashboard" className="nav-link" onClick={() => setIsMenuOpen(false)}>Aulas Diárias</Link>
-        <Link to="/annual-plan" className="nav-link" onClick={() => setIsMenuOpen(false)}>Plano Anual</Link>
-        <Link to="/didactic-sequence" className="nav-link" onClick={() => setIsMenuOpen(false)}>Sequência Didática</Link>
-        {/* <Link to="/activities" className="nav-link" onClick={() => setIsMenuOpen(false)}>Atividades</Link> */}
-        {/* <Link to="/student-report" className="nav-link" onClick={() => setIsMenuOpen(false)}>Relatório Aluno</Link> */}
+        <div className="nav-links-container">
+          <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Aulas Diárias</NavLink>
+          <NavLink to="/annual-plan" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Plano Anual</NavLink>
+          <NavLink to="/didactic-sequence" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Sequência Didática</NavLink>
+          <NavLink to="/assessments" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Avaliações</NavLink>
+          <NavLink to="/activities" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Atividades</NavLink>
+          <NavLink to="/student-report" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Relatório de Desenvolvimento</NavLink>
+        </div>
         <button onClick={handleLogout} className="logout-button">Sair</button>
       </nav>
     </header>

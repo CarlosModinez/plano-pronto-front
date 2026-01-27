@@ -31,8 +31,8 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
         </div>
         <img src="/logo.png" alt="Logo" className="header-logo" />
         <div>
-          <h1>Gerador de Planos</h1>
-          {user && <p className="user-info">Bem-vindo, <strong>{user.name}</strong> | Créditos: <strong>{user.credits}</strong></p>}
+          <h1>Plano pronto</h1>
+          {user && <p className="user-info">Bem-vindo, <strong>{user.name}</strong></p>}
         </div>
       </div>
 
@@ -42,8 +42,9 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
           <NavLink to="/annual-plan" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Plano Anual</NavLink>
           <NavLink to="/didactic-sequence" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Sequência Didática</NavLink>
           <NavLink to="/assessments" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Avaliações</NavLink>
-          <NavLink to="/activities" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Atividades</NavLink>
+          {/* <NavLink to="/activities" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Atividades</NavLink> */}
           <NavLink to="/student-report" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Relatório de Desenvolvimento</NavLink>
+          <NavLink to="/existing-materials" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={() => setIsMenuOpen(false)}>Biblioteca de materiais</NavLink>
         </div>
         <button onClick={handleLogout} className="logout-button">Sair</button>
       </nav>

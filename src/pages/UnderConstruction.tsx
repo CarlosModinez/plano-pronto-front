@@ -28,7 +28,7 @@ const UnderConstruction: React.FC<UnderConstructionProps> = ({ title }) => {
           <h3>Em Construção</h3>
           <p style={{ marginTop: '10px', marginBottom: '20px', color: '#666', lineHeight: '1.6' }}>
             Estamos trabalhando nos últimos detalhes desta funcionalidade para entregar a melhor experiência possível.<br/>
-            Ela estará disponível a partir do dia <strong>05/02</strong>.
+            Ela estará disponível a partir do dia <strong>09/02</strong>.
           </p>
           <div style={{ borderTop: '1px solid #eee', paddingTop: '20px', marginTop: '20px' }}>
             <p style={{ marginBottom: '15px', fontSize: '0.95rem' }}>

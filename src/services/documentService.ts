@@ -212,6 +212,66 @@ export const documentService = {
     return html;
   },
 
+  _generateExamHtml: (exam: any) => {
+    const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('pt-BR');
+
+    let html = `
+      <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+        <div style="border-bottom: 2px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+          <h1 style="color: #2c3e50; margin-bottom: 10px;">${exam.titulo_prova}</h1>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.9em; color: #666;">
+            <span style="background: #f0f2f5; padding: 4px 8px; border-radius: 4px;">${exam.discipline}</span>
+            <span style="background: #f0f2f5; padding: 4px 8px; border-radius: 4px;">${exam.serie}</span>
+            <span>Criado em: ${formatDate(exam.created_at)}</span>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+           <p><strong>Instruções:</strong> ${exam.instrucoes}</p>
+        </div>
+    `;
+
+    html += `<div style="margin-bottom: 25px;"><h3 style="color: #2c3e50; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">Questões</h3>`;
+    
+    exam.questoes.forEach((q: any) => {
+      html += `<div style="margin-bottom: 20px;">
+        <p><strong>${q.numero}.</strong> ${q.enunciado} <span style="color: #666; font-size: 0.9em;">(Valor: ${q.valor})</span></p>`;
+      
+      if (q.alternativas && q.alternativas.length > 0) {
+         html += '<ul style="list-style-type: none; padding-left: 20px;">';
+         q.alternativas.forEach((alt: string) => {
+           html += `<li style="margin-bottom: 5px;">${alt}</li>`;
+         });
+         html += '</ul>';
+      }
+      
+      if (q.afirmacoes && q.afirmacoes.length > 0) {
+        html += '<ul style="list-style-type: none; padding-left: 20px;">';
+        q.afirmacoes.forEach((af: string) => {
+           html += `<li style="margin-bottom: 5px;">[ ] ${af}</li>`;
+        });
+        html += '</ul>';
+      }
+
+      html += `</div>`;
+    });
+    html += `</div>`;
+
+    html += `<div style="margin-top: 30px; page-break-before: always;">
+      <h3 style="color: #2c3e50; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">Gabarito e Explicações</h3>`;
+    
+    exam.gabarito.forEach((g: any) => {
+      html += `<div style="margin-bottom: 15px; padding: 10px; background-color: #f9f9f9; border-radius: 6px;">
+        <p style="margin: 0; font-weight: bold;">Questão ${g.numero}: ${g.resposta}</p>
+        <p style="margin: 5px 0 0 0; font-style: italic;">${g.explicacao}</p>
+      </div>`;
+    });
+    
+    html += `</div></div>`;
+
+    return html;
+  },
+
   generateDocx: async (material: Material) => {
     try {
       const data = prepareData(material);
@@ -273,7 +333,73 @@ export const documentService = {
       console.error('Erro ao gerar PDF:', error);
       alert('Erro ao gerar o PDF.');
     }
+  },
+
+  generateExamDocx: async (exam: any) => {
+    try {
+      const data = prepareExamData(exam);
+      const blob = await documentService._createDocxBlob(data, 'EXAME.docx');
+      saveAs(blob, `Exame_${exam.tema?.replace(/\s+/g, '_') || 'Novo'}.docx`);
+    } catch (error) {
+      console.error('Erro ao gerar documento:', error);
+      alert('Erro ao gerar o documento. Verifique se o template EXAME.docx está disponível na pasta public.');
+    }
+  },
+
+  generateExamPdf: async (exam: any) => {
+    try {
+      const html = documentService._generateExamHtml(exam);
+      await documentService._generateHtmlPdf(html, `Exame_${exam.tema?.replace(/\s+/g, '_') || 'Novo'}.pdf`);
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      alert('Erro ao gerar o PDF.');
+    }
   }
+};
+
+const prepareExamData = (exam: any) => {
+  let questions = "";
+
+  exam.questoes.forEach((q: any) => {
+    questions += `${q.numero}. ${q.enunciado} (Valor: ${q.valor})\n`;
+    if (q.alternativas && q.alternativas.length > 0) {
+      q.alternativas.forEach((alt: string) => {
+        questions += `${alt}\n`;
+      });
+    }
+    if (q.tipo === 'verdadeiro_falso' && q.afirmacoes) {
+        q.afirmacoes.forEach((opt: string) => {
+             questions += `( ) ${opt}\n`;
+        });
+    } else if (q.tipo === 'dissertativa') {
+       questions += `___________________________________________________________________\n`;
+       questions += `___________________________________________________________________\n`;
+    }
+    questions += '\n';
+  });
+
+  let gabarito = "";
+  if (exam.gabarito) {
+    gabarito += `GABARITO\n\n`;
+    exam.gabarito.forEach((g: any) => {
+      gabarito += `${g.numero}. ${g.resposta}\n`;
+      gabarito += `Explicação: ${g.explicacao}\n\n`;
+    });
+  }
+
+  // Se o usuário não incluiu a tag GABARITO, podemos decidir se concatenamos ou não.
+  // Pela solicitação, ele pediu campos específicos. Vamos fornecer os campos chaves.
+  // Vou incluir o GABARITO como um campo extra caso ele queira usar {{GABARITO}}.
+
+  return { 
+    TITULO: exam.titulo_prova,
+    DISCIPLINA: exam.discipline,
+    TURMA: exam.serie,
+    TEMA: exam.tema,
+    INSTRUCOES: exam.instrucoes,
+    QUESTOES: questions,
+    GABARITO: gabarito
+  };
 };
 
 const prepareData = (material: Material) => {

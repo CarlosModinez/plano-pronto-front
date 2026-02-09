@@ -111,7 +111,45 @@ export interface AnnualPlan {
     avaliacoes?: string[];
     referencias?: string[];
   };
-  created_at?: string;
+  created_at: string;
+}
+
+export interface ExamRequest {
+  discipline: string;
+  serie: string;
+  theme: string;
+  numero_questoes: number;
+  tipos_questoes: string[];
+  additional_context?: string;
+}
+
+export interface Question {
+  numero: number;
+  tipo: string;
+  enunciado: string;
+  alternativas?: string[];
+  afirmacoes?: string[];
+  valor: number;
+}
+
+export interface AnswerKey {
+  numero: number;
+  resposta: string;
+  explicacao: string;
+}
+
+export interface Exam {
+  id: number;
+  discipline: string;
+  serie: string;
+  tema: string;
+  titulo_prova: string;
+  instrucoes: string;
+  questoes: Question[];
+  gabarito: AnswerKey[];
+  contexto_adicional?: string;
+  numero_questoes: number;
+  tipos_questoes: string[];  created_at?: string;
 }
 
 export interface DidacticSequenceRequest {

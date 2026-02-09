@@ -95,6 +95,24 @@ export const annualPlanService = {
   },
 };
 
+export const examService = {
+  create: async (data: any): Promise<any> => {
+    const response = await api.post('/exams', data);
+    return response.data;
+  },
+  list: async (): Promise<any> => {
+    const response = await api.get('/exams');
+    return response.data;
+  },
+  getById: async (id: string): Promise<any> => {
+    const response = await api.get(`/exams/${id}`);
+    return response.data;
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/exams/${id}`);
+  },
+};
+
 export const didacticSequenceService = {
   create: async (data: any): Promise<any> => {
     const response = await api.post('/sequences', data);

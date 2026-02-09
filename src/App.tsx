@@ -9,6 +9,8 @@ import AnnualPlanGenerator from './pages/AnnualPlanGenerator';
 import AnnualPlanDetails from './pages/AnnualPlanDetails';
 import DidacticSequenceGenerator from './pages/DidacticSequenceGenerator';
 import DidacticSequenceDetails from './pages/DidacticSequenceDetails';
+import ExamGenerator from './pages/ExamGenerator';
+import ExamDetails from './pages/ExamDetails';
 import ActivityDetails from './pages/ActivityDetails';
 import StudentReportDetails from './pages/StudentReportDetails';
 import MaterialsLibrary from './pages/MaterialsLibrary';
@@ -37,7 +39,8 @@ const App: React.FC = () => {
           <Route path="/didactic-sequence/:id" element={<DidacticSequenceDetails />} />
           <Route path="/ activities" element={<UnderConstruction title="Atividades" />} />
           <Route path="/activities/:id" element={<ActivityDetails />} />
-          <Route path="/assessments" element={<UnderConstruction title="Avaliações" />} />
+          <Route path="/exams" element={<ExamGenerator />} />
+          <Route path="/exams/:id" element={<ExamDetails />} />
           <Route path="/student-report" element={<UnderConstruction title="Relatório de Desenvolvimento" />} />
           <Route path="/student-report/:id" element={<StudentReportDetails />} />
         </Route>
